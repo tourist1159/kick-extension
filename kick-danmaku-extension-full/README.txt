@@ -1,0 +1,1 @@
+Unzip this folder and load it as an unpacked extension in chrome://extensions (Developer mode).

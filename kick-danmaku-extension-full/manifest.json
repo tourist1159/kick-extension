@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Kick Comment Danmaku",
+  "version": "1.2.0",
+  "description": "Kickのチャットを弾幕風に表示し、ページ内モーダルでNGワードを管理できます。",
+  "permissions": [
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://kick.com/*"
+      ],
+      "js": [
+        "content.js",
+        "ui.js"
+      ],
+      "css": [
+        "style.css"
+      ]
+    }
+  ]
+}

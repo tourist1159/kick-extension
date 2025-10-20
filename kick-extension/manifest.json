@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Kick コメントグラフ埋め込み",
+  "version": "2.0",
+  "description": "Kickの動画ページにコメント流量グラフを直接表示します。",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://kick.com/*",
+    "http://localhost:8000/*",
+    "http://127.0.0.1:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "コメントグラフを表示"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://kick.com/mokoutoaruotoko/videos/*"],
+      "js": ["chart.umd.js", "content_script.js"],
+      "run_at": "document_idle",
+      "css": ["style.css"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

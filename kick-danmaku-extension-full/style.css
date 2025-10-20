@@ -1,0 +1,51 @@
+/* style.css */
+#ng-button:hover { background:#444; }
+
+:fullscreen video {
+    height: 1080px !important;
+}
+#danmaku-overlay {
+    height: 1080px !important;
+}
+video {
+    height: 945px !important;
+}
+#danmaku-overlay {
+    height: 945px !important;
+}
+/*===chat font size===*/
+#chatroom-messages > div > div > div > div > span.font-normal.leading-\[1\.55\]{font-size: 14px;}
+/*===title font size===*/
+body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-hidden.pt-\[var\(--navbar-height\)\].lg\:pt-0 > div.bg-grey-950.flex.flex-1.flex-col.overflow-hidden.lg\:flex-row > div.bg-surface-lower.flex.flex-1.overflow-hidden > main > div.relative.flex.flex-col.gap-4.px-4.lg\:grow.lg\:px-7.lg\:py-5 > div.overflow-hidden > div > div.flex.max-w-full.shrink.grow-0.flex-row.gap-2.overflow-hidden.lg\:gap-4 > div.flex.max-w-full.grow.flex-col.gap-1.overflow-hidden > div.flex.min-w-0.max-w-full.shrink.gap-1.overflow-hidden > span{font-size: 24px;}
+
+body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-hidden.pt-\[var\(--navbar-height\)\].lg\:pt-0 > div.bg-grey-950.flex.flex-1.flex-col.overflow-hidden.lg\:flex-row > div.bg-surface-lower.flex.flex-1.overflow-hidden > main > div.relative.flex.flex-col.gap-4.px-4.lg\:grow.lg\:px-7.lg\:py-5 > div.overflow-hidden > div{padding-bottom: 150px;}
+
+/*===disable unnecessary elements===*/
+
+/*gift*/
+#danmaku-overlay .dm { transition: none; }
+#channel-chatroom > div.bg-surface-lower.relative.flex.flex-1.flex-col > div:nth-child(1){display: none;}
+/*recommends and followers in the left side bar*/
+#sidebar-wrapper{display: none;}
+/*chats name*/
+#chatroom-messages > div > div > div > div > div{display: none;}
+/*dots between chats name and content*/
+#chatroom-messages > div > div > div > div > span.inline-flex.font-bold{display: none;}
+/*quick emotes*/
+#quick-emotes-holder{display: none;}
+/*top bar*/
+body > div.group\/main.h-xvh.flex.flex-col > nav{display: none;}
+/*commented at*/
+.no-scrollbar > div.inset-x-0 > div > div > span.font-semibold{display: none !important;}
+/*subscribe etc.*/
+body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-hidden.pt-\[var\(--navbar-height\)\].lg\:pt-0 > div.bg-grey-950.flex.flex-1.flex-col.overflow-hidden.lg\:flex-row > div.bg-surface-lower.flex.flex-1.overflow-hidden > main > div.relative.flex.flex-col.gap-4.px-4.lg\:grow.lg\:px-7.lg\:py-5 > div.overflow-hidden > div > div.flex.shrink-0.flex-col.items-end.gap-2 > div.flex.w-full.gap-2.lg\:w-auto{display: none;}
+/*share*/
+body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-hidden.pt-\[var\(--navbar-height\)\].lg\:pt-0 > div.bg-grey-950.flex.flex-1.flex-col.overflow-hidden.lg\:flex-row > div.bg-surface-lower.flex.flex-1.overflow-hidden > main > div.relative.flex.flex-col.gap-4.px-4.lg\:grow.lg\:px-7.lg\:py-5 > div.overflow-hidden > div > div.flex.shrink-0.flex-col.items-end.gap-2 > div.flex.items-center.gap-2.self-end.py-0\.5 > button:nth-child(4){display: none;}
+/*report*/
+#radix-_R_3d9j2lubsnpfiuoiel5ubtb_{display: none;}
+/*liver's name*/
+body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-hidden.pt-\[var\(--navbar-height\)\].lg\:pt-0 > div.bg-grey-950.flex.flex-1.flex-col.overflow-hidden.lg\:flex-row > div.bg-surface-lower.flex.flex-1.overflow-hidden > main > div.relative.flex.flex-col.gap-4.px-4.lg\:grow.lg\:px-7.lg\:py-5 > div.overflow-hidden > div > div.flex.max-w-full.shrink.grow-0.flex-row.gap-2.overflow-hidden.lg\:gap-4 > div.flex.max-w-full.grow.flex-col.gap-1.overflow-hidden > a{display: none;}
+/*live attribute*/
+body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-hidden.pt-\[var\(--navbar-height\)\].lg\:pt-0 > div.bg-grey-950.flex.flex-1.flex-col.overflow-hidden.lg\:flex-row > div.bg-surface-lower.flex.flex-1.overflow-hidden > main > div.relative.flex.flex-col.gap-4.px-4.lg\:grow.lg\:px-7.lg\:py-5 > div.overflow-hidden > div > div.flex.max-w-full.shrink.grow-0.flex-row.gap-2.overflow-hidden.lg\:gap-4 > div.flex.max-w-full.grow.flex-col.gap-1.overflow-hidden > div.flex.min-w-0.max-w-full.flex-wrap.items-center.gap-2.overflow-hidden{display: none;}
+
+body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-hidden.pt-\[var\(--navbar-height\)\].lg\:pt-0 > div.bg-grey-950.flex.flex-1.flex-col.overflow-hidden.lg\:flex-row > div.bg-surface-lower.flex.flex-1.overflow-hidden > main > div.relative.flex.flex-col.gap-4.px-4.lg\:grow.lg\:px-7.lg\:py-5 > div.overflow-hidden > div > div.flex.max-w-full.shrink.grow-0.flex-row.gap-2.overflow-hidden.lg\:gap-4 > div.shrink-0{display: none;}
