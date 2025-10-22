@@ -123,8 +123,56 @@ async function renderCommentChart(videoEl) {
       return;
     }
 
-    // コメント配列を時刻順に並べる
+    const ngwords = /^(\[emote:(\d+):(\w+)\])+$|同接/;
+    // コメントを時刻順にソート
     comments.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const filteredComments = [];
+    const lastByUser = new Map();
+
+    function normalizeText(text) {
+      return text
+        .toLowerCase()
+        .replace(/[！!？?\s]/g, "")
+        .replace(/[ｗw]+/g, "w")
+        .normalize("NFKC");
+    }
+
+    for (const c of comments) {
+      const uid = c.id;
+      const text = c.text.trim();
+      const norm = normalizeText(text);
+      const time = new Date(c.timestamp);
+      let skip = false;
+
+      if (ngwords.test(text)) skip = true;
+
+      // 🔹 30秒以上前の記録を削除してメモリ節約
+      for (const [key, value] of lastByUser.entries()) {
+        if ((time - value.time) / 1000 > 30) {
+          lastByUser.delete(key);
+        }
+        else break;
+      }
+
+      const last = lastByUser.get(uid);
+
+      if (last) {
+        const diffSec = (time - last.time) / 1000;
+        const lastNorm = normalizeText(last.text);
+
+        if (diffSec <= 10) skip = true;
+        if (diffSec <= 30 && (lastNorm.includes(norm) || norm.includes(lastNorm))) skip = true;
+      }
+
+      // 最新のコメント情報を保存（次回判定用）
+      lastByUser.set(uid, { time, text });
+
+      if (!skip) filteredComments.push(c);
+    }
+
+    console.log(`コメント総数: ${comments.length}, フィルタ後: ${filteredComments.length}`);
+
 
     // 🔹 アーカイブ情報のJSON (kick_archives.json) に start_time か created_at を含めておく
     // const videoStartTime = new Date(archive.created_at); などとして取得
@@ -132,8 +180,6 @@ async function renderCommentChart(videoEl) {
     // 例: コメントデータのJSONにも start_time が含まれている場合
     const videoStartTime = new Date(data.start_time || data.created_at || comments[0].timestamp);
 
-    // コメントを時刻順にソート
-    comments.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
     // 全体の終了時間（最後のコメント時刻）
     const endTime = new Date(comments[comments.length - 1].timestamp);
@@ -151,8 +197,6 @@ async function renderCommentChart(videoEl) {
 
     // 🔹 キーワード別の配列も作成
     const keywords = ["w", "^あ$"];
-    const ngwords = /^(\[emote:(\d+):(\w+)\])+$|同接/;
-
     const keywordCounts = {};
 
     for (const word of keywords) {
@@ -160,23 +204,21 @@ async function renderCommentChart(videoEl) {
     }
 
     // 1分ごとのインデックスにコメントを集計
-    for (const comment of comments) {
+    for (const comment of filteredComments) {
       const t = new Date(comment.timestamp);
       const diffMin = Math.floor((t - videoStartTime) / 60000); // 経過分数
       if (diffMin < 0 || diffMin >= labels.length) continue;
 
       const text = comment.text || "";
-      if (!ngwords.test(text)) {
-        totalCounts[diffMin]++;
+      totalCounts[diffMin]++;
 
-        for (const word of keywords) {
-          try {
-            const regex = new RegExp(word, "gi");
-            const matches = text.match(regex);
-            if (matches) keywordCounts[word][diffMin] += matches.length;
-          } catch (e) {
-            console.warn(`無効な正規表現: ${word}`, e);
-          }
+      for (const word of keywords) {
+        try {
+          const regex = new RegExp(word, "gi");
+          const matches = text.match(regex);
+          if (matches) keywordCounts[word][diffMin] += matches.length;
+        } catch (e) {
+          console.warn(`無効な正規表現: ${word}`, e);
         }
       }
     }
