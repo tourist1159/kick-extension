@@ -30,13 +30,14 @@
   });
 
   function isNG(data){
-    if(logcomments.find(logcomment => logcomment.content == data.content && logcomment.id == data.id))  return true;
+    // 連投NG
+    if(logcomments.find(logcomment => (logcomment.content.includes(data.content) || data.content.includes(logcomment.content)) && logcomment.id == data.id))  return true;
     if(!data || !ngRegexp) return false;
     return ngRegexp.test(data.content);
   }
 
   /* Danmaku core (DOM + Web Animations API) - adapted from prior version */
-  const SPEED_PX_PER_SEC = 240;
+  const SPEED_PX_PER_SEC = 300;
   const MAX_LANES = 16;
   const LINE_HEIGHT_SCALE = 2.0;
   const FONT_FAMILY = 'sans-serif';
