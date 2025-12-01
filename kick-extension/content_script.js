@@ -40,12 +40,10 @@ async function renderCommentChart(videoEl) {
   container.style.clear = "both";    // 横並び禁止
   container.style.display = "block"; // 強制ブロック要素
 
-  // videoEl の直後に挿入
-  if (videoEl.parentElement) {
-    videoEl.parentElement.insertBefore(container, videoEl.nextSibling);
-  } else {
-    videoEl.insertAdjacentElement("afterend", container);
-  }
+  const aftervideoEl = document.querySelector("body > div.group\\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\\:overflow-hidden.pt-\\[var\\(--navbar-height\\)\\].lg\\:pt-0 > div.flex.flex-1.flex-col.overflow-hidden.bg-neutral-950.lg\\:flex-row > div.bg-surface-lowest.flex.flex-1.overflow-hidden > main > div.relative.flex.flex-col.gap-4.px-4.lg\\:grow.lg\\:px-7.lg\\:py-5")
+  aftervideoEl.insertAdjacentElement("afterbegin", container);
+  console.log('afterend');
+  
 
   // 描画領域を用意して描画
   // inner container to size with video width. We'll set width: videoEl.clientWidth px if possible.
@@ -90,10 +88,10 @@ async function renderCommentChart(videoEl) {
   // --- kick_archives.json から id を探す ---
   let videoId = null;
   try {
-    const res = await fetch("http://localhost:8000/kick_archives.json");
+    const res = await fetch("http://localhost:8000/kick_archives.json", {cache: "no-cache"});
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const archives = await res.json();
-
+    console.log(archives);
     // uuid 一致する要素を検索
     const found = archives.find(v => v.uuid === uuid);
     if (found) {
@@ -109,7 +107,7 @@ async function renderCommentChart(videoEl) {
   }
 
   // --- コメントJSONを取得 ---
-  const commentsUrl = `http://localhost:8000/archives_comments/${videoId}_comments.json`;
+  const commentsUrl = `http://localhost:8000/comments_local/${videoId}_comments.json`;
 
   try {
     const res = await fetch(commentsUrl);
@@ -216,7 +214,7 @@ async function renderCommentChart(videoEl) {
         try {
           const regex = new RegExp(word, "gi");
           const matches = text.match(regex);
-          if (matches) keywordCounts[word][diffMin] += matches.length;
+          if (matches && matches.length < 10) keywordCounts[word][diffMin] += matches.length;
         } catch (e) {
           console.warn(`無効な正規表現: ${word}`, e);
         }
