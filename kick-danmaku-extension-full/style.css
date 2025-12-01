@@ -24,7 +24,6 @@ body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-
 
 /*gift*/
 #danmaku-overlay .dm { transition: none; }
-#channel-chatroom > div.bg-surface-lower.relative.flex.flex-1.flex-col > div:nth-child(1){display: none;}
 /*recommends and followers in the left side bar*/
 #sidebar-wrapper{display: none;}
 /*chats name*/

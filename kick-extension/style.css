@@ -1,5 +1,53 @@
 #injected-channel-player {--channel-info-height: none !important;}
-body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-hidden.pt-\[var\(--navbar-height\)\].lg\:pt-0 > div.bg-grey-950.flex.flex-1.flex-col.overflow-hidden.lg\:flex-row > div.bg-surface-lower.flex.flex-1.overflow-hidden > main > div.relative.block.max-h-\[calc\(100vh-var\(--navbar-height\)-var\(--channel-info-height\)\)\].w-full.shrink-0.overflow-hidden.bg-black.group-data-\[theatre\=true\]\/main\:\!h-\[100vh\].group-data-\[theatre\=true\]\/main\:\!max-h-\[unset\].supports-\[height\:100dvh\]\:max-h-\[calc\(100dvh-var\(--navbar-height\)-var\(--channel-info-height\)\)\].group-data-\[theatre\=true\]\/main\:supports-\[height\:100dvh\]\:\!h-\[100dvh\] {--channel-info-height: none !important;}
-#injected-embedded-channel-player-video > div > div.z-controls.absolute.bottom-0.left-0.flex.w-full.flex-row.items-center.justify-between.px-2.xl\:px-5.bg-gradient-to-t.from-black\/80.to-black\/0.group-data-\[theatre\=true\]\/main\:fixed.group-data-\[theatre\=true\]\/main\:group-data-\[chat\=true\]\/main\:w-\[calc\(100vw-var\(--chat-width\)\)\].supports-\[width\:100dvw\]\:group-data-\[theatre\=true\]\/main\:group-data-\[chat\=true\]\/main\:w-\[calc\(100dvw-var\(--chat-width\)\)\] {padding-bottom: 210px;}
+
 #kick-comments-chart-canvas {background-color: rgb(39, 37, 37);}
 #kick-comments-chart-container {padding: 0px !important;}
+
+/*video要素の親要素　overflowさせることで、videoを大きく表示させる*/
+body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-hidden.pt-\[var\(--navbar-height\)\].lg\:pt-0 > div.flex.flex-1.flex-col.overflow-hidden.bg-neutral-950.lg\:flex-row > div.bg-surface-lowest.flex.flex-1.overflow-hidden > main > div.relative.block.max-h-\[calc\(100vh-var\(--navbar-height\)-var\(--channel-info-height\)\)\].w-full.shrink-0.overflow-hidden.bg-black.group-data-\[theatre\=true\]\/main\:\!h-\[100vh\].group-data-\[theatre\=true\]\/main\:\!max-h-\[unset\].supports-\[height\:100dvh\]\:max-h-\[calc\(100dvh-var\(--navbar-height\)-var\(--channel-info-height\)\)\].group-data-\[theatre\=true\]\/main\:supports-\[height\:100dvh\]\:\!h-\[100dvh\]{
+    height: 945px !important;
+    max-height: 945px !important;
+    overflow: visible !important;
+}
+
+/*videoの下のアーカイブ一覧　キャンバスもここに入れている*/
+body > div.group\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\:overflow-hidden.pt-\[var\(--navbar-height\)\].lg\:pt-0 > div.flex.flex-1.flex-col.overflow-hidden.bg-neutral-950.lg\:flex-row > div.bg-surface-lowest.flex.flex-1.overflow-hidden > main > div.relative.flex.flex-col.gap-4.px-4.lg\:grow.lg\:px-7.lg\:py-5{
+    margin-top: 20px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+
+/*シークバーと下のやつの位置調整　デフォルト表示とシアーターモードで変わらないように*/
+/*シークバーと下のやつ*/
+
+#injected-embedded-channel-player-video > div > div.z-controls.absolute.bottom-0.left-0.flex.w-full.flex-row.items-center.justify-between.px-2.xl\:px-5.bg-gradient-to-t.from-black\/80.to-black\/0.group-data-\[theatre\=true\]\/main\:fixed.group-data-\[theatre\=true\]\/main\:group-data-\[chat\=true\]\/main\:w-\[calc\(100vw-var\(--chat-width\)\)\].supports-\[width\:100dvw\]\:group-data-\[theatre\=true\]\/main\:group-data-\[chat\=true\]\/main\:w-\[calc\(100dvw-var\(--chat-width\)\)\]:not(:fullscreen) {
+    position: absolute !important;
+    top: 901px !important;
+}
+
+#injected-embedded-channel-player-video > div > div.z-controls.absolute.bottom-0.left-0.flex.w-full.flex-row.items-center.justify-between.px-2.xl\:px-5.bg-gradient-to-t.from-black\/80.to-black\/0.group-data-\[theatre\=true\]\/main\:fixed.group-data-\[theatre\=true\]\/main\:group-data-\[chat\=true\]\/main\:w-\[calc\(100vw-var\(--chat-width\)\)\].supports-\[width\:100dvw\]\:group-data-\[theatre\=true\]\/main\:group-data-\[chat\=true\]\/main\:w-\[calc\(100dvw-var\(--chat-width\)\)\]:not(:fullscreen):fullscreen {
+    position: absolute !important;
+    bottom: 41px !important;
+}
+
+/*シークバー*/
+div.group\/seekbar {
+    position: absolute !important;
+    bottom: 20px !important;
+}
+/*シークバー下の左のやつ*/
+#injected-embedded-channel-player-video > div > div.z-controls.absolute.bottom-0.left-0.flex.w-full.flex-row.items-center.justify-between.px-2.xl\:px-5.bg-gradient-to-t.from-black\/80.to-black\/0.group-data-\[theatre\=true\]\/main\:fixed.group-data-\[theatre\=true\]\/main\:group-data-\[chat\=true\]\/main\:w-\[calc\(100vw-var\(--chat-width\)\)\].supports-\[width\:100dvw\]\:group-data-\[theatre\=true\]\/main\:group-data-\[chat\=true\]\/main\:w-\[calc\(100dvw-var\(--chat-width\)\)\] > div:nth-child(1) {
+    position: absolute !important;
+    top: 10px !important;
+}
+/*シークバー下の右のやつ*/
+#injected-embedded-channel-player-video > div > div.z-controls.absolute.bottom-0.left-0.flex.w-full.flex-row.items-center.justify-between.px-2.xl\:px-5.bg-gradient-to-t.from-black\/80.to-black\/0.group-data-\[theatre\=true\]\/main\:fixed.group-data-\[theatre\=true\]\/main\:group-data-\[chat\=true\]\/main\:w-\[calc\(100vw-var\(--chat-width\)\)\].supports-\[width\:100dvw\]\:group-data-\[theatre\=true\]\/main\:group-data-\[chat\=true\]\/main\:w-\[calc\(100dvw-var\(--chat-width\)\)\] > div:nth-child(2) {
+    position: absolute !important;
+    top: 10px !important;
+    right: 20px !important
+}
+
+#injected-channel-player {
+    width: 1920px !important;
+    height: 945px !important;
+}
