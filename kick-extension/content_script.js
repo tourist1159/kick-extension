@@ -303,7 +303,28 @@ async function renderCommentChart(videoEl) {
           }
         },
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        onClick: (evt, activeEls) => {
+          const chart = canvas._chartInstance;
+          const points = chart.getElementsAtEventForMode(evt, "nearest", { intersect: true }, true);
+
+          if (!points.length) return;
+
+          const firstPoint = points[0];
+          const index = firstPoint.index;  // ←クリックされた点の index
+
+          // index = 経過分数 なので、秒に変換
+          const seconds = index * 60;
+
+          // video 要素を取得
+          const video = document.querySelector("video");
+          if (!video) return;
+
+          video.currentTime = seconds;
+          video.pause();   //（任意）ジャンプ後に一瞬止める
+          video.play();    //（任意）そのまま再生
+        },
+
       }
     });
 
