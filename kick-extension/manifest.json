@@ -18,9 +18,9 @@
   "content_scripts": [
     {
       "matches": ["https://kick.com/mokoutoaruotoko/videos/*"],
-      "js": ["chart.umd.js", "content_script.js"],
+      "js": ["chart.umd.js", "init-manager.js", "bootstrap.js", "commentchart.js", "danmaku.js", "ui.js"],
       "run_at": "document_idle",
-      "css": ["style.css"]
+      "css": ["style.css", "style2.css"]
     }
   ],
   "content_security_policy": {
