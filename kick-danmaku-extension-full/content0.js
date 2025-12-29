@@ -4,34 +4,27 @@
 (() => {
   // NG handling
   let ngList = [];
-  let ngEnabled = true; // 全体ON/OFFスイッチ
   let logcomments = [];
   let ngRegexp = null;
   function rebuildRegexp(){
     if(!ngList || ngList.length === 0){ ngRegexp = null; return; }
-    // 有効なパターンだけ集める
-    const enabledPatterns = ngList
-      .filter(item => item.enabled)
-      .map(item => item.pattern);
-
     try {
-      ngRegexp = new RegExp(enabledPatterns.join("|"), "iu");
-    } catch (e) {
-      console.warn("NG正規表現の構築に失敗:", e);
+      ngRegexp = new RegExp(ngList.join("|"), "iu");
+    } catch(e) {
+      console.warn("NG regexp build failed", e);
       ngRegexp = null;
     }
+    console.log(ngRegexp);
   }
-
-  chrome.storage.local.get(["ngList", "ngEnabled"], (data) => {
-    ngList = data.ngList ?? [];
-    ngEnabled = data.ngEnabled ?? true;
+  // load initial NG list
+  chrome.storage.local.get("ngList", (data) => {
+    ngList = data.ngList || [];
     rebuildRegexp();
   });
-
   // listen to changes
-  chrome.storage.onChanged.addListener((changes) => {
-    if (changes.ngList) {
-      ngList = changes.ngList.newValue ?? [];
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if(area === "local" && changes.ngList){
+      ngList = changes.ngList.newValue || [];
       rebuildRegexp();
     }
   });
@@ -192,33 +185,12 @@
     mo.observe(board, { subtree: true, childList: true });
   }
 
-  function observeUrlChange(onChange) {
-    let lastUrl = location.href;
-
-    const observer = new MutationObserver(() => {
-      const url = location.href;
-      if (url !== lastUrl) {
-        lastUrl = url;
-        onChange(url);
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-  }
-
   // init
-  function init(){
+  (function init(){
     if(!ensureOverlay()){
       setTimeout(init, 800);
       return;
     }
     startObserver();
-  };
-
-  init();
-  // SPA遷移対応
-  observeUrlChange(() => {
-    console.log("[Kick Extension] URL changed → re-init");
-    init();
-  });
+  })();
 })();
