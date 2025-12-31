@@ -4,20 +4,14 @@ let cleanupFns = [];
 /* =========================
  * async 初期化エントリポイント
  * ========================= */
-InitManager.register("init", async ({videoId}) => {
+InitManager.register("init", async ({videoId, videoEl}) => {
   try {
-    console.log("[Kick Extension] init start", { videoId });
+    console.log("[Kick Extension]commentchart: init start", { videoId });
     if (!videoId) return;
 
     // クリーンアップ
     cleanupFns.forEach(fn => {try { fn(); } catch (e) {}});
     cleanupFns = [];
-
-    const videoEl = await waitForVideoElement();
-    console.log("[Kick Extension] video element detected", videoEl);
-
-    cleanupFns.push(setupProgressSaving(videoEl, videoId));
-    cleanupFns.push(observeAndRenderProgress(videoId));
     cleanupFns.push(await renderCommentChart(videoEl, videoId));
     console.log("[Kick Extension] init completed");
   } catch (e) {
@@ -25,23 +19,6 @@ InitManager.register("init", async ({videoId}) => {
   }
 });
 
-
-function waitForVideoElement() {
-  return new Promise(resolve => {
-    const existing = document.querySelector("video");
-    if (existing) return resolve(existing);
-
-    const observer = new MutationObserver(() => {
-      const video = document.querySelector("video");
-      if (video) {
-        observer.disconnect();
-        resolve(video);
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-  });
-}
 
 async function loadCommentData(videoId) {
   const PAGES_BASE = "https://tourist1159.github.io/kick-comment-fetcher/comments_github/";
@@ -352,100 +329,4 @@ async function renderCommentChart(videoEl, videoId) {
 
     canvas._chartInstance = chart;
     console.log("[Kick Extension] グラフ描画完了");
-}
-
-// -----------------------------
-// Watch progress tracking
-// -----------------------------
-function saveWatchProgress(videoEl, videoId) {
-  const percent = videoEl.duration
-    ? Math.min(1, videoEl.currentTime / videoEl.duration)
-    : 0;
-
-  chrome.storage.local.get(['watchProgress'], data => {
-    const store = data.watchProgress || {};
-    store[videoId] = {
-      currentTime: Math.floor(videoEl.currentTime),
-      duration: Math.floor(videoEl.duration),
-      percent,
-      updatedAt: Date.now()
-    };
-    chrome.storage.local.set({ watchProgress: store });
-  });
-}
-
-function setupProgressSaving(videoEl, videoId) {
-  setInterval(() => {
-    saveWatchProgress(videoEl, videoId);
-  }, 10000);
-}
-
-
-// Called on pages that contain lists of archive thumbnails. Scans links and decorates them.
-async function renderProgressOnArchiveList(root = document) {
-  try {
-    // load mapping uuid->id
-    const res = await fetch(
-      "https://tourist1159.github.io/kick-comment-fetcher/kick_archives.json",
-      { cache: "no-cache" }
-    );
-    if (!res.ok) throw new Error(res.status);
-
-    const archives = await res.json();
-    const uuidToId = new Map(archives.map(a => [a.uuid, a.id]));
-
-    // collect anchors that point to /videos/<uuid>
-    const anchors = Array.from(root.querySelectorAll('a[href*="/videos/"]'));
-    if (!anchors.length) return;
-
-    // load stored progress
-    chrome.storage.local.get(['watchProgress'], (data) => {
-      const store = data.watchProgress || {};
-      anchors.forEach(a => {
-        const uuid = window.getUuidFromUrl(a.href);
-        if (!uuid) return;
-        const id = uuidToId.get(uuid);
-        if (!id) return;
-
-        // find thumbnail container (try common patterns)
-        let container = a.closest('div') || a.parentElement;
-        if (!container) container = a; 
-
-        // avoid duplicating
-        if (container.querySelector('.ke-watch-progress')) return;
-
-        const dataObj = store[id];
-        const percent = dataObj ? (dataObj.percent || 0) : 0;
-
-        const barWrap = document.createElement('div');
-        barWrap.className = 'ke-watch-progress';
-        barWrap.style.cssText = 'height:6px;background:rgba(255,255,255,0.12);border-radius:3px;overflow:hidden;margin-top:6px;position:relative;';
-        const bar = document.createElement('div');
-        bar.style.cssText = `height:100%;background:linear-gradient(90deg,#4caf50,#8bc34a);width:${Math.round(percent*100)}%;transition:width .3s ease;`;
-        barWrap.appendChild(bar);
-
-        // insert after thumbnail or as last child
-        if (a.parentElement) a.parentElement.appendChild(barWrap);
-        else container.appendChild(barWrap);
-      });
-    });
-  } catch (e) {
-    console.warn('renderProgressOnArchiveList error', e);
-  }
-}
-
-function observeAndRenderProgress(videoId) {
-  renderProgressOnArchiveList(document);
-  const observer = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      if (m.addedNodes && m.addedNodes.length) {
-        // try to decorate newly added nodes
-        for (const node of m.addedNodes) {
-          if (!(node instanceof Element)) continue;
-          renderProgressOnArchiveList(node);
-        }
-      }
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
 }

@@ -35,9 +35,27 @@
     }
     }
 
+    function waitForVideoElement() {
+        return new Promise(resolve => {
+            const existing = document.querySelector("video");
+            if (existing) return resolve(existing);
+
+            const observer = new MutationObserver(() => {
+            const video = document.querySelector("video");
+            if (video) {
+                observer.disconnect();
+                resolve(video);
+            }
+            });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+    }
+
     async function runInit() {
     const videoId = await resolveVideoId();
-    await InitManager.run("init", { videoId });
+    const videoEl = await waitForVideoElement();
+    await InitManager.run("init", { videoId, videoEl });
     }
 
     // 初回

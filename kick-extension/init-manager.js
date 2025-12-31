@@ -1,4 +1,3 @@
-// window に載せるのが重要
 window.InitManager = (() => {
   const handlers = new Map();
   const fired = new Set();
