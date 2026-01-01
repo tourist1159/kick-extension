@@ -111,9 +111,11 @@ async function renderProgressOnArchiveList(root = document) {
         const id = uuidToId.get(uuid);
         if (!id) return;
 
+        // only add bar to anchors containing images (thumbnails)
+        if (!a.querySelector('img')) return;
+
         // find thumbnail container (try common patterns)
-        let container = a.closest('div') || a.parentElement;
-        if (!container) container = a; 
+        let container = a;
 
         // avoid duplicating
         if (container.querySelector('.ke-watch-progress')) return;
@@ -123,14 +125,18 @@ async function renderProgressOnArchiveList(root = document) {
 
         const barWrap = document.createElement('div');
         barWrap.className = 'ke-watch-progress';
-        barWrap.style.cssText = 'height:6px;background:rgba(255,255,255,0.12);border-radius:3px;overflow:hidden;margin-top:6px;position:relative;';
+        barWrap.style.cssText = 'height:6px;background:rgba(255,255,255,0.12);border-radius:3px;overflow:hidden;position:absolute;bottom:0;left:0;right:0;';
         const bar = document.createElement('div');
         bar.style.cssText = `height:100%;background:linear-gradient(90deg,#4caf50,#8bc34a);width:${Math.round(percent*100)}%;transition:width .3s ease;`;
         barWrap.appendChild(bar);
 
+        // ensure container has relative positioning
+        if (getComputedStyle(container).position === 'static') {
+          container.style.position = 'relative';
+        }
+
         // insert after thumbnail or as last child
-        if (a.parentElement) a.parentElement.appendChild(barWrap);
-        else container.appendChild(barWrap);
+        container.appendChild(barWrap);
       });
     });
   } catch (e) {
