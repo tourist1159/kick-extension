@@ -96,7 +96,7 @@ async function renderProgressOnArchiveList(root = document) {
     if (!res.ok) throw new Error(res.status);
 
     const archives = await res.json();
-    const uuidToId = new Map(archives.map(a => [a.uuid, a.id]));
+    const archiveinfo = new Map(archives.map(a => [a.uuid, {id:a.id, num_comments:a.number_of_comments, duration:a.duration}]));
 
     // collect anchors that point to /videos/<uuid>
     const anchors = Array.from(root.querySelectorAll('a[href*="/videos/"]'));
@@ -108,7 +108,7 @@ async function renderProgressOnArchiveList(root = document) {
       anchors.forEach(a => {
         const uuid = window.getUuidFromUrl(a.href);
         if (!uuid) return;
-        const id = uuidToId.get(uuid);
+        const id = archiveinfo.get(uuid)['id'];
         if (!id) return;
 
         // only add bar to anchors containing images (thumbnails)
@@ -137,6 +137,17 @@ async function renderProgressOnArchiveList(root = document) {
 
         // insert after thumbnail or as last child
         container.appendChild(barWrap);
+
+        const numComments = archiveinfo.get(uuid)['num_comments'];
+        const duration = archiveinfo.get(uuid)['duration'];
+        const commentvelocity = duration && numComments ? Math.round(numComments / (duration / 3600000)) : 0;
+        if (commentvelocity) {
+          const commentBadge = document.createElement('div');
+          commentBadge.className = 'ke-comment-badge';
+          commentBadge.textContent = `${commentvelocity} cph`;
+          commentBadge.style.cssText = 'position:absolute;top:6px;right:6px;padding:2px 6px;background:rgba(0, 0, 0, 0.8);color:#fff;font-size:12px;border-radius:4px;';
+          container.appendChild(commentBadge);
+        }
       });
     });
   } catch (e) {
