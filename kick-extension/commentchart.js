@@ -86,7 +86,8 @@ async function renderCommentChart(videoEl, videoId) {
   container.style.clear = "both";    // 横並び禁止
   container.style.display = "block"; // 強制ブロック要素
 
-  const aftervideoEl = document.querySelector("body > div.group\\/main.h-xvh.flex.flex-col > div.w-xvw.flex.flex-1.lg\\:overflow-hidden.pt-\\[var\\(--navbar-height\\)\\].lg\\:pt-0 > div.flex.flex-1.flex-col.overflow-hidden.bg-neutral-950.lg\\:flex-row > div.bg-surface-lowest.flex.flex-1.overflow-hidden > main > div.relative.flex.flex-col.gap-4.px-4.lg\\:grow.lg\\:px-7.lg\\:py-5")
+  let aftervideoEl = document.querySelector("main[data-theatre-mode-container] > div:nth-child(2)");
+  if (!aftervideoEl) {console.warn("[Kick Extension] could not find insertion point for comment chart."); return;}
   aftervideoEl.insertAdjacentElement("afterbegin", container);
   
   // 描画領域を用意して描画
