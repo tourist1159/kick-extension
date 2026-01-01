@@ -149,15 +149,30 @@ async function renderProgressOnArchiveList(root = document) {
           container.appendChild(commentBadge);
         }
         // modify timeago text details
-        const el = a.parentElement.querySelectorAll("span[title]")[1];
-        const timeago = el.textContent;
-        const date = el.getAttribute("title");
-        el.textContent = timeago+" ("+date+")"
+        adddateinfo(a.parentElement);
       });
+      const mainEl = document.querySelector("main[data-theatre-mode-container]");
+      adddateinfo(mainEl);
     });
   } catch (e) {
     console.warn('renderProgressOnArchiveList error', e);
   }
+}
+
+function adddateinfo(el) {
+  const elements = el.querySelectorAll("span[title]");
+  let Reg = /\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}/
+  elements.forEach(el => {
+    if (Reg.test(el.getAttribute("title"))) {
+      const timeago = el.textContent;
+      if (!Reg.test(timeago)) {
+      const date = el.getAttribute("title");
+      el.textContent = timeago+" ("+date+")"
+      }
+      return true;
+    }
+  });
+  return null;
 }
 
 function observeAndRenderProgress(videoId) {
