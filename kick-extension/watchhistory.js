@@ -148,6 +148,11 @@ async function renderProgressOnArchiveList(root = document) {
           commentBadge.style.cssText = 'position:absolute;top:6px;right:6px;padding:2px 6px;background:rgba(0, 0, 0, 0.8);color:#fff;font-size:12px;border-radius:4px;';
           container.appendChild(commentBadge);
         }
+        // modify timeago text details
+        const el = a.parentElement.querySelectorAll("span[title]")[1];
+        const timeago = el.textContent;
+        const date = el.getAttribute("title");
+        el.textContent = timeago+" ("+date+")"
       });
     });
   } catch (e) {
