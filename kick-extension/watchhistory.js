@@ -1,4 +1,5 @@
 let cleanupFns2 = [];
+let cleanupFns3 = [];
 let clearinterval = null;
 /* =========================
  * async 初期化エントリポイント
@@ -15,30 +16,66 @@ InitManager.register("init", async ({videoId, videoEl}) => {
     }
     cleanupFns2.forEach(fn => {try { fn(); } catch (e) {}});
     cleanupFns2 = [];
-    cleanupFns2.push(setupProgressSaving(videoEl, videoId));
+    /*cleanupFns2.push(setupProgressSaving(videoEl, videoId));*/
     cleanupFns2.push(observeAndRenderProgress(videoId));
-    console.log("[Kick Extension] init completed");
+    restartfromsavedpoint(videoEl, videoId);
+    console.log("[Kick Extension]watch history: init completed");
   } catch (e) {
     console.error("[Kick Extension] init failed:", e);
   }
 });
 
 
-function saveWatchProgress(videoEl, videoId) {
-  const percent = videoEl.duration
-    ? Math.min(1, videoEl.currentTime / videoEl.duration)
-    : 0;
+InitManager.register("beforeunload", async ({videoId, videoEl}) => {
+  try {
+    console.log("[Kick Extension]watch history: beforeunload start", { videoId });
+    if (!videoId) return;
 
+    // クリーンアップ
+    cleanupFns2.forEach(fn => {try { fn(); } catch (e) {}});
+    cleanupFns2 = [];
+    cleanupFns2.push(saveWatchProgress(videoEl, videoId));
+    console.log("[Kick Extension]watch history: beforeunload completed");
+  } catch (e) {
+    console.error("[Kick Extension] init failed:", e);
+  }
+});
+
+function restartfromsavedpoint(videoEl, videoId) {
+  chrome.storage.local.get(['watchProgress'], data => {
+    const store = data.watchProgress || {};
+    const dataObj = store[videoId];
+    if (dataObj && dataObj.currentTime) {
+      console.log("[Kick Extension] resuming from saved point:", dataObj);
+      videoEl.currentTime = dataObj.currentTime;
+    }
+  });
+}
+
+function saveWatchProgress(videoEl, videoId) {
+  const currentTime = videoEl.currentTime;
+  const duration = videoEl.duration;
+  const percent = duration
+    ? Math.min(1, currentTime / duration)
+    : 0;
+  console.log("[Kick Extension] saving watch progress:", {
+    videoId,
+    currentTime: currentTime,
+    duration: duration,
+    percent
+  });
   chrome.storage.local.get(['watchProgress'], data => {
     const store = data.watchProgress || {};
     store[videoId] = {
-      currentTime: Math.floor(videoEl.currentTime),
-      duration: Math.floor(videoEl.duration),
+      currentTime: Math.floor(currentTime),
+      duration: Math.floor(duration),
       percent,
       updatedAt: Date.now()
     };
     chrome.storage.local.set({ watchProgress: store });
+    console.log("[Kick Extension] watch progress saved.", videoId, store[videoId]);
   });
+
 }
 
 function setupProgressSaving(videoEl, videoId) {
