@@ -6,7 +6,19 @@
   let ngList = [];
   let ngEnabled = true; // 全体ON/OFFスイッチ
   let logcomments = [];
-  let ngRegexp = null;
+  let ngRegexp = null;  
+  
+  let cleanupFns = [];
+  InitManager.register("init", () => {
+    console.log("[Kick Extension] InitManager triggered danmaku init");
+    // cleanup previous
+    cleanupFns.forEach(fn => {try { fn(); } catch (e) {}});
+    cleanupFns = [];
+    // start observer
+    startObserver();
+  });
+
+  
   function rebuildRegexp(){
     if(!ngList || ngList.length === 0){ ngRegexp = null; return; }
     // 有効なパターンだけ集める
@@ -192,26 +204,5 @@
     mo.observe(board, { subtree: true, childList: true });
   }
 
-  function observeUrlChange(onChange) {
-    let lastUrl = location.href;
 
-    const observer = new MutationObserver(() => {
-      const url = location.href;
-      if (url !== lastUrl) {
-        lastUrl = url;
-        onChange(url);
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-  }
-
-  InitManager.register("init", () => {
-    console.log("[Kick Extension] InitManager triggered danmaku init");
-    // cleanup previous
-    cleanupFns.forEach(fn => {try { fn(); } catch (e) {}});
-    cleanupFns = [];
-    // start observer
-    startObserver();
-  });
 })();
