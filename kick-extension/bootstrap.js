@@ -3,9 +3,12 @@
     // ---------- SPA URL 監視 ----------
     function observeUrlChange(onChange) {
     let lastUrl = location.href;
+    let title = document.querySelector('span[data-testid="livestream-title"]');
     const mo = new MutationObserver(() => {
+
         if (location.href !== lastUrl) {
         lastUrl = location.href;
+        title = document.querySelector('span[data-testid="livestream-title"]');
         onChange();
         }
     });
@@ -55,6 +58,25 @@
     async function runInit() {
     const videoId = await resolveVideoId();
     const videoEl = await waitForVideoElement();
+    window.AppState.videoId = videoId;
+    window.AppState.videoEl = videoEl;
+    console.log("[Kick Extension] running init with", { videoId, videoEl });
+    await InitManager.run("init", { videoId, videoEl });
+    }
+
+    async function reInit() {
+    const prevideoId = window.AppState.videoId;
+    const prevideoEl = window.AppState.videoEl;
+    
+    await InitManager.run("beforeunload", {
+        videoId: prevideoId,
+        videoEl: prevideoEl
+    });
+    const videoId = await resolveVideoId();
+    const videoEl = await waitForVideoElement();
+    window.AppState.videoId = videoId;
+    window.AppState.videoEl = videoEl;
+    console.log("[Kick Extension] running re-init with", { videoId, videoEl });
     await InitManager.run("init", { videoId, videoEl });
     }
 
@@ -64,6 +86,6 @@
     // SPA遷移対応
     observeUrlChange(async () => {
     console.log("[InitManager] URL changed → re-init");
-    await runInit();
+    await reInit();
     });
 })();
