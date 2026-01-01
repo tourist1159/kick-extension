@@ -17,8 +17,8 @@ InitManager.register("init", async ({videoId, videoEl}) => {
     cleanupFns2.forEach(fn => {try { fn(); } catch (e) {}});
     cleanupFns2 = [];
     /*cleanupFns2.push(setupProgressSaving(videoEl, videoId));*/
+    cleanupFns2.push(restartfromsavedpoint(videoEl, videoId));
     cleanupFns2.push(observeAndRenderProgress(videoId));
-    restartfromsavedpoint(videoEl, videoId);
     console.log("[Kick Extension]watch history: init completed");
   } catch (e) {
     console.error("[Kick Extension] init failed:", e);
