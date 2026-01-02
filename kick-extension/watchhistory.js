@@ -152,23 +152,33 @@ async function renderProgressOnArchiveList(root = document) {
         adddateinfo(a.parentElement);
       });
       const mainEl = document.querySelector("main[data-theatre-mode-container]");
-      adddateinfo(mainEl);
+      adddateinfo(mainEl, "UTC");
     });
   } catch (e) {
     console.warn('renderProgressOnArchiveList error', e);
   }
 }
 
-function adddateinfo(el) {
+function adddateinfo(el, TZ="") {
   const elements = el.querySelectorAll("span[title]");
   let Reg = /\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}/
   elements.forEach(el => {
     if (Reg.test(el.getAttribute("title"))) {
       const timeago = el.textContent;
       if (!Reg.test(timeago)) {
-      const date = el.getAttribute("title");
+      let date = el.getAttribute("title");
+        if (TZ === "UTC") {
+          let dt = new Date(date+"Z");
+          dt.setHours( dt.getHours());
+          let yyyy = dt.getFullYear();
+          let mm = ('0' + (dt.getMonth() + 1)).slice(-2);
+          let dd = ('0' + dt.getDate()).slice(-2);
+          let hh = ('0' + dt.getHours()).slice(-2);
+          let min = ('0' + dt.getMinutes()).slice(-2);
+          date = `${yyyy}/${mm}/${dd} ${hh}:${min}`;
+        }
       el.textContent = timeago+" ("+date+")"
-      }
+      };
       return true;
     }
   });
