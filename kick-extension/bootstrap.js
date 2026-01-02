@@ -83,6 +83,14 @@
     // 初回
     runInit();
 
+    window.addEventListener("pagehide", async () => {
+    await InitManager.run("beforeunload", {
+        videoId: window.AppState.videoId,
+        videoEl: window.AppState.videoEl
+    });
+    console.log("[Kick Extension] watch history: pagehide completed");
+    });
+
     // SPA遷移対応
     observeUrlChange(async () => {
     console.log("[InitManager] URL changed → re-init");
