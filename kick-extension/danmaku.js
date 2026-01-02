@@ -9,7 +9,7 @@
   let ngRegexp = null;  
   
   let cleanupFns = [];
-  InitManager.register("init", () => {
+  InitManager.register("init_archive", () => {
     console.log("[Kick Extension] InitManager triggered danmaku init");
     // cleanup previous
     cleanupFns.forEach(fn => {try { fn(); } catch (e) {}});
@@ -18,6 +18,14 @@
     startObserver();
   });
 
+  InitManager.register("init_live", () => {
+  console.log("[Kick Extension] InitManager triggered danmaku init");
+  // cleanup previous
+  cleanupFns.forEach(fn => {try { fn(); } catch (e) {}});
+  cleanupFns = [];
+  // start observer
+  startObserver();
+  });
   
   function rebuildRegexp(){
     if(!ngList || ngList.length === 0){ ngRegexp = null; return; }

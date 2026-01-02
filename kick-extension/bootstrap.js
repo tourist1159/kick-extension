@@ -20,11 +20,18 @@
     return m ? m[1] : null;
     }
 
+    function islive(videoEl) {
+        return videoEl.duration === Infinity;
+    }
+
     async function resolveVideoId() { 
     try {
         console.log("[Kick Extension] resolving video ID from URL...");
         const uuid = getUuidFromUrl(location.href);
-        if (!uuid) return null;
+        if (!uuid) {
+            console.warn("[Kick Extension] could not find UUID in URL");
+            return null;
+        }
         const res = await fetch("https://tourist1159.github.io/kick-comment-fetcher/kick_archives.json", { cache: "no-cache" });
         if (!res.ok) throw new Error(res.status);
 
@@ -39,6 +46,7 @@
     }
 
     function waitForVideoElement() {
+        if (document.querySelector("main[data-theatre-mode-container]").textContent.includes("オフラインです")) {return null;}
         return new Promise(resolve => {
             const existing = document.querySelector("video");
             if (existing) return resolve(existing);
@@ -56,12 +64,19 @@
     }
 
     async function runInit() {
-    const videoId = await resolveVideoId();
     const videoEl = await waitForVideoElement();
-    window.AppState.videoId = videoId;
+    if (!videoEl) { await InitManager.run("init_toppage"); return; }
     window.AppState.videoEl = videoEl;
     console.log("[Kick Extension] running init with", { videoId, videoEl });
-    await InitManager.run("init", { videoId, videoEl });
+    if (videoEl && islive(videoEl)) {
+        console.log("[Kick Extension] detected live stream");
+        await InitManager.run("init_live");
+    } else {
+        console.log("[Kick Extension] detected archive video");
+        const videoId = await resolveVideoId();
+        window.AppState.videoId = videoId;
+        await InitManager.run("init_archive", { videoId, videoEl })
+    };
     }
 
     async function reInit() {
@@ -77,7 +92,13 @@
     window.AppState.videoId = videoId;
     window.AppState.videoEl = videoEl;
     console.log("[Kick Extension] running re-init with", { videoId, videoEl });
-    await InitManager.run("init", { videoId, videoEl });
+    if (islive(videoEl)) {
+        console.log("[Kick Extension] detected live stream");
+        await InitManager.run("init_live", { videoId, videoEl });
+    } else {
+        console.log("[Kick Extension] detected archive video");
+        await InitManager.run("init_archive", { videoId, videoEl })
+    };
     }
 
     // 初回

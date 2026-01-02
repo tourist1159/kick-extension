@@ -4,7 +4,7 @@ let clearinterval = null;
 /* =========================
  * async 初期化エントリポイント
  * ========================= */
-InitManager.register("init", async ({videoId, videoEl}) => {
+InitManager.register("init_archive", async ({videoId, videoEl}) => {
   try {
     console.log("[Kick Extension]watch history: init start", { videoId });
     if (!videoId) return;
@@ -19,6 +19,18 @@ InitManager.register("init", async ({videoId, videoEl}) => {
     /*cleanupFns2.push(setupProgressSaving(videoEl, videoId));*/
     cleanupFns2.push(restartfromsavedpoint(videoEl, videoId));
     cleanupFns2.push(observeAndRenderProgress(videoId));
+    console.log("[Kick Extension]watch history: init completed");
+  } catch (e) {
+    console.error("[Kick Extension] init failed:", e);
+  }
+});
+
+
+InitManager.register("init_toppage", async () => {
+  try {
+    cleanupFns2.forEach(fn => {try { fn(); } catch (e) {}});
+    cleanupFns2 = [];
+    cleanupFns2.push(observeAndRenderProgress());
     console.log("[Kick Extension]watch history: init completed");
   } catch (e) {
     console.error("[Kick Extension] init failed:", e);
@@ -184,7 +196,7 @@ function adddateinfo(el, TZ="") {
   return null;
 }
 
-function observeAndRenderProgress(videoId) {
+function observeAndRenderProgress() {
   renderProgressOnArchiveList(document);
   const observer = new MutationObserver((mutations) => {
     for (const m of mutations) {

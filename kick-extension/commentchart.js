@@ -4,7 +4,7 @@ let cleanupFns = [];
 /* =========================
  * async 初期化エントリポイント
  * ========================= */
-InitManager.register("init", async ({videoId, videoEl}) => {
+InitManager.register("init_archive", async ({videoId, videoEl}) => {
   try {
     console.log("[Kick Extension]commentchart: init start", { videoId });
     if (!videoId) return;
