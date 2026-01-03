@@ -188,8 +188,32 @@ function addOpenButton() {
   document.body.appendChild(btn);
 }
 
+function addHideVideoButton() {
+  const controlBar = document.querySelector('#injected-embedded-channel-player-video > div > div.z-controls');
+  if (!controlBar || document.querySelector('#hide-video-btn')) return;
+  const rightControls = controlBar.children[1];
+  if (!rightControls) return;
+
+  const hideVideoBtn = document.createElement('button');
+  hideVideoBtn.id = 'hide-video-btn';
+  hideVideoBtn.textContent = '👁️';
+  hideVideoBtn.title = 'ビデオを隠す/表示';
+  hideVideoBtn.style.cssText = 'background:none;border:none;color:white;font-size:18px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background 0.2s;';
+  hideVideoBtn.addEventListener('mouseover', () => hideVideoBtn.style.background = 'rgba(255,255,255,0.1)');
+  hideVideoBtn.addEventListener('mouseout', () => hideVideoBtn.style.background = 'none');
+  hideVideoBtn.addEventListener('click', () => {
+    const video = document.querySelector('video');
+    if (video) {
+      video.style.visibility = video.style.visibility === 'hidden' ? 'visible' : 'hidden';
+    }
+  });
+  rightControls.appendChild(hideVideoBtn);
+}
+
 window.addEventListener('load', () => {
   initModal();
   addOpenButton();
+  InitManager.register("init_live", addHideVideoButton);
+  InitManager.register("init_archive", addHideVideoButton);
 });
 
