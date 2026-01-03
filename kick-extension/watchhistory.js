@@ -181,8 +181,9 @@ function adddateinfo(el, TZ="") {
       let date = el.getAttribute("title");
         if (TZ === "UTC") {
           let dt = new Date(date+"Z");
+          console.log("dt",dt);
           let yyyy = dt.getFullYear();
-          let mm = ('0' + (dt.getMonth())).slice(-2);
+          let mm = ('0' + (dt.getMonth()+1)).slice(-2);
           let dd = ('0' + dt.getDate()).slice(-2);
           let hh = ('0' + dt.getHours()).slice(-2);
           let min = ('0' + dt.getMinutes()).slice(-2);
