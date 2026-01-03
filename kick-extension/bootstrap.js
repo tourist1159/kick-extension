@@ -67,8 +67,7 @@
     const videoEl = await waitForVideoElement();
     if (!videoEl) { await InitManager.run("init_toppage"); return; }
     window.AppState.videoEl = videoEl;
-    console.log("[Kick Extension] running init with", { videoId, videoEl });
-    if (videoEl && islive(videoEl)) {
+    if (islive(videoEl)) {
         console.log("[Kick Extension] detected live stream");
         await InitManager.run("init_live");
     } else {
@@ -87,16 +86,16 @@
         videoId: prevideoId,
         videoEl: prevideoEl
     });
-    const videoId = await resolveVideoId();
     const videoEl = await waitForVideoElement();
-    window.AppState.videoId = videoId;
+    if (!videoEl) { await InitManager.run("init_toppage"); return; }
     window.AppState.videoEl = videoEl;
-    console.log("[Kick Extension] running re-init with", { videoId, videoEl });
     if (islive(videoEl)) {
         console.log("[Kick Extension] detected live stream");
-        await InitManager.run("init_live", { videoId, videoEl });
+        await InitManager.run("init_live");
     } else {
         console.log("[Kick Extension] detected archive video");
+        const videoId = await resolveVideoId();
+        window.AppState.videoId = videoId;
         await InitManager.run("init_archive", { videoId, videoEl })
     };
     }
