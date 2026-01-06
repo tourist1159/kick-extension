@@ -45,15 +45,16 @@
     }
     }
 
-    function waitForVideoElement() {
-        if (document.querySelector("main[data-theatre-mode-container]").textContent.includes("オフラインです")) {return null;}
+    async function waitForVideoElement() {
+
         return new Promise(resolve => {
             const existing = document.querySelector("video");
             if (existing) return resolve(existing);
 
             const observer = new MutationObserver(() => {
             const video = document.querySelector("video");
-            if (video) {
+            if (video) {        
+                if (document.querySelector("main[data-theatre-mode-container]").textContent.includes("オフラインです")) {return null;}
                 observer.disconnect();
                 resolve(video);
             }
@@ -65,6 +66,7 @@
 
     async function runInit() {
     const videoEl = await waitForVideoElement();
+    console.log("[Kick Extension] waitForVideoElement resolved:", videoEl);
     if (!videoEl) { await InitManager.run("init_toppage"); return; }
     window.AppState.videoEl = videoEl;
     if (islive(videoEl)) {
