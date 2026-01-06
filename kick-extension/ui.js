@@ -210,6 +210,15 @@ function addHideVideoButton() {
   rightControls.appendChild(hideVideoBtn);
 }
 
+const observer = new MutationObserver(() => {
+  const controlBar = document.querySelector('#injected-embedded-channel-player-video > div > div.z-controls');
+  if (controlBar && !document.querySelector('#hide-video-btn')) {
+    addHideVideoButton();
+  }
+});
+
+observer.observe(document.querySelector('#injected-embedded-channel-player-video > div'), { childList: true, subtree: true });
+
 window.addEventListener('load', () => {
   initModal();
   addOpenButton();
