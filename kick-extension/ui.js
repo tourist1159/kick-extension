@@ -209,20 +209,21 @@ function addHideVideoButton() {
   });
   rightControls.appendChild(hideVideoBtn);
 }
+function observeControlbar() {
+  const observer = new MutationObserver(() => {
+    const controlBar = document.querySelector('#injected-embedded-channel-player-video > div > div.z-controls');
+    if (controlBar && !document.querySelector('#hide-video-btn')) {
+      addHideVideoButton();
+    }
+  });
 
-const observer = new MutationObserver(() => {
-  const controlBar = document.querySelector('#injected-embedded-channel-player-video > div > div.z-controls');
-  if (controlBar && !document.querySelector('#hide-video-btn')) {
-    addHideVideoButton();
-  }
-});
-
-observer.observe(document.querySelector('#injected-embedded-channel-player-video > div'), { childList: true, subtree: true });
+  observer.observe(document.querySelector('#injected-embedded-channel-player-video > div'), { childList: true, subtree: true });
+}
 
 window.addEventListener('load', () => {
   initModal();
   addOpenButton();
-  InitManager.register("init_live", addHideVideoButton);
-  InitManager.register("init_archive", addHideVideoButton);
+  InitManager.register("init_live", observeControlbar);
+  InitManager.register("init_archive", observeControlbar);
 });
 
