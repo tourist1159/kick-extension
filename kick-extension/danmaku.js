@@ -9,23 +9,6 @@
   let ngRegexp = null;  
   
   let cleanupFns = [];
-  InitManager.register("init_archive", () => {
-    console.log("[Kick Extension] InitManager triggered danmaku init");
-    // cleanup previous
-    cleanupFns.forEach(fn => {try { fn(); } catch (e) {}});
-    cleanupFns = [];
-    // start observer
-    startObserver();
-  });
-
-  InitManager.register("init_live", () => {
-  console.log("[Kick Extension] InitManager triggered danmaku init");
-  // cleanup previous
-  cleanupFns.forEach(fn => {try { fn(); } catch (e) {}});
-  cleanupFns = [];
-  // start observer
-  startObserver();
-  });
   
   function rebuildRegexp(){
     if(!ngList || ngList.length === 0){ ngRegexp = null; return; }
@@ -160,7 +143,10 @@
 
   function spawnComment(data){
     if(!data) return;
-    if(isNG(data)) return;
+    if(isNG(data)) {
+      //console.log("Blocked NG comment:", data.content);
+      return;
+    }
     ensureOverlay();
     if(!overlay) return;
     const el = document.createElement('div');
@@ -212,5 +198,22 @@
     mo.observe(board, { subtree: true, childList: true });
   }
 
+  InitManager.register("init_archive", () => {
+    console.log("[Kick Extension] InitManager triggered danmaku init");
+    // cleanup previous
+    cleanupFns.forEach(fn => {try { fn(); } catch (e) {}});
+    cleanupFns = [];
+    // start observer
+    startObserver();
+  });
+
+  InitManager.register("init_live", () => {
+  console.log("[Kick Extension] InitManager triggered danmaku init");
+  // cleanup previous
+  cleanupFns.forEach(fn => {try { fn(); } catch (e) {}});
+  cleanupFns = [];
+  // start observer
+  startObserver();
+  });
 
 })();
