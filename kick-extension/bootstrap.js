@@ -52,9 +52,13 @@
             if (existing) return resolve(existing);
 
             const observer = new MutationObserver(() => {
+            if (document.querySelector("main[data-theatre-mode-container]").textContent.includes("オフラインです")) {
+                console.log("[Kick Extension] Video is offline"); 
+                observer.disconnect();
+                resolve(null);
+            }
             const video = document.querySelector("video");
             if (video) {        
-                if (document.querySelector("main[data-theatre-mode-container]").textContent.includes("オフラインです")) {return null;}
                 observer.disconnect();
                 resolve(video);
             }
@@ -104,14 +108,7 @@
 
     // 初回
     runInit();
-
-    window.addEventListener("pagehide", async () => {
-    await InitManager.run("beforeunload", {
-        videoId: window.AppState.videoId,
-        videoEl: window.AppState.videoEl
-    });
-    console.log("[Kick Extension] watch history: pagehide completed");
-    });
+    
 
     // SPA遷移対応
     observeUrlChange(async () => {
