@@ -193,33 +193,70 @@ async function renderCommentChart(videoEl, videoId) {
     // コメント総数の配列（1分単位）
     const totalCounts = new Array(labels.length).fill(0);
 
-    // 🔹 キーワード別の配列も作成
-    const keywords = ["w", "^あ$"];
-    const keywordCounts = {};
+    // 🔹 キーワード（ブラウザから追加・削除可能。chrome.storage.local に保存）
+    const KEYWORDS_STORAGE_KEY = "commentChartKeywords";
+    const DEFAULT_KEYWORDS = ["w", "^あ$"];
+    const KEYWORD_COLORS = ["red", "orange", "cyan", "magenta", "yellow"];
 
-    for (const word of keywords) {
-      keywordCounts[word] = new Array(labels.length).fill(0);
+    async function loadKeywords() {
+      try {
+        const stored = await chrome.storage.local.get(KEYWORDS_STORAGE_KEY);
+        const list = stored[KEYWORDS_STORAGE_KEY];
+        if (Array.isArray(list)) return list;
+      } catch (e) {
+        console.warn("[Kick Extension] キーワード読み込み失敗", e);
+      }
+      return [...DEFAULT_KEYWORDS];
     }
 
-    // 1分ごとのインデックスにコメントを集計
-    for (const comment of filteredComments) {
-      const t = new Date(comment.timestamp);
-      const diffMin = Math.floor((t - videoStartTime) / 60000); // 経過分数
-      if (diffMin < 0 || diffMin >= labels.length) continue;
-
-      const text = comment.text || "";
-      totalCounts[diffMin]++;
-
-      for (const word of keywords) {
-        try {
-          const regex = new RegExp(word, "gi");
-          const matches = text.match(regex);
-          if (matches && matches.length < 10) keywordCounts[word][diffMin] += matches.length;
-        } catch (e) {
-          console.warn(`無効な正規表現: ${word}`, e);
-        }
+    function saveKeywords(list) {
+      try {
+        chrome.storage.local.set({ [KEYWORDS_STORAGE_KEY]: list });
+      } catch (e) {
+        console.warn("[Kick Extension] キーワード保存失敗", e);
       }
     }
+
+    const keywords = await loadKeywords();
+
+    // 1分ごとのインデックスにコメントを集計（キーワード非依存部分）
+    const minuteBuckets = [];
+    for (const comment of filteredComments) {
+      const diffMin = Math.floor((new Date(comment.timestamp) - videoStartTime) / 60000); // 経過分数
+      if (diffMin < 0 || diffMin >= labels.length) continue;
+      totalCounts[diffMin]++;
+      minuteBuckets.push({ diffMin, text: comment.text || "" });
+    }
+
+    function countKeyword(word) {
+      const counts = new Array(labels.length).fill(0);
+      let regex;
+      try {
+        regex = new RegExp(word, "gi");
+      } catch (e) {
+        console.warn(`無効な正規表現: ${word}`, e);
+        return counts;
+      }
+      for (const { diffMin, text } of minuteBuckets) {
+        const matches = text.match(regex);
+        if (matches && matches.length < 10) counts[diffMin] += matches.length;
+      }
+      return counts;
+    }
+
+    function makeKeywordDataset(word, i) {
+      return {
+        label: `${word}`,
+        data: countKeyword(word),
+        borderColor: KEYWORD_COLORS[i % KEYWORD_COLORS.length],
+        borderWidth: 1.5,
+        fill: false,
+        tension: 0.3,
+        yAxisID: "yKeyword",
+        hidden: false
+      };
+    }
+
     // 🔹 横軸：配信開始からの経過時間 (00:00, 00:01, 00:02 ...)
     const formattedLabels = labels.map((_, i) => {
       const totalMinutes = i;
@@ -244,16 +281,7 @@ async function renderCommentChart(videoEl, videoId) {
             yAxisID: "yTotal",
             hidden: false
           },
-          ...keywords.map((word, i) => ({
-            label: `${word}`,
-            data: keywordCounts[word],
-            borderColor: ["red", "orange", "cyan", "magenta", "yellow"][i % 5],
-            borderWidth: 1.5,
-            fill: false,
-            tension: 0.3,
-            yAxisID: "yKeyword",
-            hidden: false
-          }))
+          ...keywords.map(makeKeywordDataset)
         ]
       },
       options: {
@@ -329,5 +357,65 @@ async function renderCommentChart(videoEl, videoId) {
     });
 
     canvas._chartInstance = chart;
+
+    // キーワード管理UI
+    const kwBar = document.createElement("div");
+    kwBar.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-size:12px;color:#222;";
+    inner.appendChild(kwBar);
+
+    function refreshChartKeywords() {
+      chart.data.datasets.length = 1; // 先頭は「全コメント」
+      keywords.forEach((w, i) => chart.data.datasets.push(makeKeywordDataset(w, i)));
+      chart.update();
+    }
+
+    function renderKeywordBar() {
+      kwBar.innerHTML = "";
+      keywords.forEach((word, i) => {
+        const chip = document.createElement("span");
+        chip.style.cssText = `display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:10px;background:#333;color:${KEYWORD_COLORS[i % KEYWORD_COLORS.length]};`;
+        chip.textContent = word;
+        const del = document.createElement("button");
+        del.type = "button";
+        del.textContent = "×";
+        del.title = "削除";
+        del.style.cssText = "border:none;background:none;color:#ccc;cursor:pointer;padding:0;font-size:14px;line-height:1;";
+        del.addEventListener("click", () => {
+          keywords.splice(i, 1);
+          saveKeywords(keywords);
+          renderKeywordBar();
+          refreshChartKeywords();
+        });
+        chip.appendChild(del);
+        kwBar.appendChild(chip);
+      });
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = "キーワード（正規表現可）";
+      input.style.cssText = "padding:2px 6px;border:1px solid #888;border-radius:4px;min-width:160px;";
+      const addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.textContent = "追加";
+      addBtn.style.cssText = "padding:2px 8px;cursor:pointer;";
+
+      const add = () => {
+        const word = input.value.trim();
+        if (!word || keywords.includes(word)) return;
+        try { new RegExp(word, "gi"); } catch (e) { alert("無効な正規表現です: " + word); return; }
+        keywords.push(word);
+        saveKeywords(keywords);
+        renderKeywordBar();
+        refreshChartKeywords();
+      };
+      addBtn.addEventListener("click", add);
+      // Kick側のショートカットを誤爆させない
+      for (const ev of ["keydown", "keyup", "keypress"]) input.addEventListener(ev, e => e.stopPropagation());
+      input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing) add(); });
+
+      kwBar.appendChild(input);
+      kwBar.appendChild(addBtn);
+    }
+    renderKeywordBar();
     console.log("[Kick Extension] グラフ描画完了");
 }
