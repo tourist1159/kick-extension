@@ -20,6 +20,12 @@
     return m ? m[1] : null;
     }
 
+    // Kick は動画URLの識別子を v4 uuid から v7 uuid へ移行した。
+    // kick_archives.json の uuid は v4 のままで、url 側に v7 uuid が入るため両方を照合キーにする。
+    window.getArchiveUuids = function (archive) {
+    return [archive.uuid, getUuidFromUrl(archive.url)].filter(Boolean);
+    }
+
     function islive(videoEl) {
         return videoEl.duration === Infinity;
     }
@@ -36,7 +42,7 @@
         if (!res.ok) throw new Error(res.status);
 
         const archives = await res.json();
-        const found = archives.find(v => v.uuid === uuid);
+        const found = archives.find(v => getArchiveUuids(v).includes(uuid));
         return found ? found.id : null;
 
     } catch (e) {
