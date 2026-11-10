@@ -108,7 +108,10 @@ async function renderProgressOnArchiveList(root = document) {
     if (!res.ok) throw new Error(res.status);
 
     const archives = await res.json();
-    const archiveinfo = new Map(archives.map(a => [a.uuid, {id:a.id, num_comments:a.number_of_comments, duration:a.duration}]));
+    const archiveinfo = new Map(archives.flatMap(a => {
+      const info = {id:a.id, num_comments:a.number_of_comments, duration:a.duration};
+      return window.getArchiveUuids(a).map(u => [u, info]);
+    }));
 
     // collect anchors that point to /videos/<uuid>
     const anchors = Array.from(root.querySelectorAll('a[href*="/videos/"]'));
@@ -120,7 +123,7 @@ async function renderProgressOnArchiveList(root = document) {
       anchors.forEach(a => {
         const uuid = window.getUuidFromUrl(a.href);
         if (!uuid) return;
-        const id = archiveinfo.get(uuid)['id'];
+        const id = archiveinfo.get(uuid)?.id;
         if (!id) return;
 
         // only add bar to anchors containing images (thumbnails)
