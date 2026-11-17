@@ -361,7 +361,7 @@ async function renderCommentChart(videoEl, videoId) {
     // キーワード管理UI
     const kwBar = document.createElement("div");
     kwBar.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-size:12px;color:#222;";
-    inner.appendChild(kwBar);
+    container.appendChild(kwBar); // inner に入れるとChart.jsのリサイズでキャンバスが伸び続ける
 
     function refreshChartKeywords() {
       chart.data.datasets.length = 1; // 先頭は「全コメント」
